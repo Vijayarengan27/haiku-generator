@@ -50,6 +50,7 @@ W1 = torch.randn((60, 100), generator = g)
 b1 = torch.randn(100, generator = g)
 W2 = torch.randn((100, len(unique_words)), generator = g)
 b2 = torch.rand(len(unique_words), generator = g)
+wd = 0.01  # weight decay penalty
 parameters = [C, W1, b1, W2, b2]
 for p in parameters:
     p.requires_grad = True

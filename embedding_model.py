@@ -63,6 +63,7 @@ Xtr, Ytr = X[:n1], Y[:n1]
 Xdev, Ydev = X[n1:n2], Y[n1:n2]
 Xte, Yte = X[n2:], Y[n2:]
 
+step, lossi = [], []
 for _ in range(15000):
 
     # minibatch selection
@@ -71,8 +72,9 @@ for _ in range(15000):
     emb = C[Xtr[ix]]  # embedding
     h = torch.tanh(emb.view(-1, 60) @ W1 + b1)  # tanh activated first layer
     logits = h @ W2 + b2  # second layer
-    loss = F.cross_entropy(logits, Ytr[ix])
-
+    loss = -F.cross_entropy(logits, Ytr[ix]) + wd *((W1**2).mean() + (W2**2).mean() + (C**2).mean()) # log likelihood and regularization of weights and embeddings
+    step.append(_)
+    lossi.append(loss.item())
     # backward pass
     for p in parameters:
         p.grad = None
@@ -81,7 +83,9 @@ for _ in range(15000):
     # update
     lr = 0.1 if _ < 10000 else 0.01
     for p in parameters:
-        p.data += -lr * p.grad
+        p.data += lr * p.grad  # gradient ascent
+
+plt.plot(step, [-i for i in lossi])  # plotting the loss function(inverting it since it is negative)
 
 # total training set
 with torch.no_grad():
